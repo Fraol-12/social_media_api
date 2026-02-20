@@ -1,11 +1,14 @@
 from django.shortcuts import render
 
-from rest_framework import generics, status 
+from rest_framework import generics, status, viewsets 
 from rest_framework.response import Response 
 from rest_framework.authtoken.models import Token 
 from rest_framework.permissions import AllowAny, IsAuthenticated 
+from rest_framework.decorators import action 
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer 
 from django.contrib.auth import get_user_model 
+from .models import User 
+
 
 user = get_user_model() 
 
@@ -28,13 +31,28 @@ class LoginView(generics.GenericAPIView):
             'token': token.key,
             'username':user.username,
 
-        }, status=status.HTTP_200_OK) 
+        }, status=status.HTTP_200_OK)  
     
-class ProfileView(generics.RetrieveUpdateAPIView):
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated] 
+class ProfileView(generics.RetrieveUpdateAPIView):  
+    serializer_class = UserSerializer  
+    permission_classes = [IsAuthenticated]  
 
     def get_object(self):
         return self.request.user 
+
+class UserViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated] 
+
+    @action(detail=True, methods=['post']) 
+    def follow(self, request, pk=None):
+        user_to_follow = User.objects.get(pk=pk) 
+        if user_to_follow == request.user:
+            return Response({'error': 'Cannot follow yourself.'}, status=status.HTTP_400_BAD_REQUEST)
+        request.user.following.add(user_to_follow)
+        return Response({'status': f'You are now followin {user_to_follow.username}'}) 
     
-        
+    @action(detail=True, methods=['post'])
+    def unfollow(self, request, pk=None):
+        user_to_unfollow = User.objects.get(pk=pk) 
+        request.user.following.remove(user_to_unfollow)
+        return Response ({'status': f'You have unfollowed {user_to_unfollow.username}'})  
