@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, filters, status, generics
 from rest_framework import permissions
 from rest_framework.response import Response 
 from rest_framework.views import APIView 
@@ -9,7 +9,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Post, Comment, Like, Notification 
 from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly 
-from django.shortcuts import get_object_or_404 
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -29,7 +28,7 @@ class LikePostView(APIView):
 
     def post(self, request, pk):
         # ALX check: use get_object_or_404
-        post = get_object_or_404(Post, pk=pk)
+        post = generics.get_object_or_404(Post, pk=pk)
 
         # Get or create like
         like, created = Like.objects.get_or_create(user=request.user, post=post)
@@ -50,7 +49,7 @@ class UnlikePostView(APIView):
 
     def post(self, request, pk):
         # ALX check: use get_object_or_404
-        post = get_object_or_404(Post, pk=pk)
+        post = generics.get_object_or_404(Post, pk=pk)
 
         # Delete like if exists
         like = Like.objects.filter(user=request.user, post=post).first()
@@ -68,7 +67,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user) 
 
 class FeedView(APIView):
-    Permission_classes = [permissions.IsAuthenticated] 
+    permission_classes = [permissions.IsAuthenticated] 
 
     def get(self, request):
         user = request.user 
