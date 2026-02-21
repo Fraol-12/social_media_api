@@ -11,6 +11,7 @@ from .models import CustomUser
 
 
 CustomUser = get_user_model() 
+queryset = CustomUser.objects.all()
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer 
