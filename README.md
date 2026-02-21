@@ -1,180 +1,164 @@
-# Social Media API
+Social Media API
 
-A RESTful Social Media API built with Django and Django REST Framework.
+A fully functional RESTful Social Media API built with Django and Django REST Framework (DRF).
+Implements user authentication, posts, comments, follows, likes, and notifications. Designed to be secure, modular, and scalable, closely simulating real-world backend scenarios.
 
-This project implements user authentication and profile management as the foundational step toward building a fully featured social media backend system.
+🚀 Features Implemented (Task 0)
 
----
+Custom User Model with profile and followers
 
-## 🚀 Features Implemented (Task 0)
+Token-based Authentication (DRF)
 
-- Custom User Model
-- Token-Based Authentication
-- User Registration
-- User Login
-- Profile Retrieval & Update
-- Secure-by-default API configuration
+User Registration & Login
 
----
+Profile Retrieval & Update
 
-## 🛠 Tech Stack
+Secure-by-default API configuration
 
-- Python
-- Django
-- Django REST Framework
-- DRF Token Authentication
-- SQLite (development)
+Planned Features (Structure Ready)
 
----
+Posts & Comments
 
-## 📂 Project Structure
+Follow System & User Feed
 
-```
+Likes & Notifications
+
+Production-ready deployment configuration
+
+🛠 Tech Stack
+
+Python: 3.14
+
+Django: 6.0
+
+Django REST Framework (DRF)
+
+DRF Token Authentication
+
+SQLite (development)
+
+Optional: PostgreSQL for production
+
+📂 Project Structure
 social_media_api/
 │
-├── accounts/
+├── accounts/                  # User authentication and profile management
+│   ├── migrations/
 │   ├── models.py
 │   ├── serializers.py
-│   ├── views.py
 │   ├── urls.py
+│   └── views.py
 │
-├── social_media_api/
+├── posts/                     # Posts, Comments, Likes
+│   ├── migrations/
+│   ├── models.py
+│   ├── serializers.py
+│   ├── permissions.py
+│   ├── urls.py
+│   └── views.py
+│
+├── notifications/             # Notification system
+│   ├── migrations/
+│   ├── models.py
+│   ├── serializers.py
+│   ├── urls.py
+│   └── views.py
+│
+├── social_media_api/          # Project settings
 │   ├── settings.py
 │   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
 │
 ├── manage.py
-```
+└── README.md
+⚙️ Installation & Setup
 
----
+Clone the repository
 
-## ⚙️ Installation & Setup
+git clone https://github.com/<your-username>/social_media_api.git
+cd social_media_api
 
-### 1. Clone the repository
+Create and activate a virtual environment
 
-```bash
-git clone https://github.com/<your-username>/Alx_DjangoLearnLab.git
-cd Alx_DjangoLearnLab/social_media_api
-```
-
-### 2. Create virtual environment
-
-```bash
 python -m venv venv
 source venv/bin/activate  # Linux/macOS
-```
+venv\Scripts\activate     # Windows
 
-### 3. Install dependencies
+Install dependencies
 
-```bash
-pip install django djangorestframework
-```
+pip install -r requirements.txt
+# Or manually
+pip install django djangorestframework djangorestframework-authtoken django-filter
 
-### 4. Apply migrations
+Apply migrations
 
-```bash
 python manage.py makemigrations
 python manage.py migrate
-```
 
-### 5. Run development server
+Create a superuser
 
-```bash
+python manage.py createsuperuser
+
+Run the development server
+
 python manage.py runserver
-```
 
-Server will start at:
+Server URL: http://127.0.0.1:8000/
 
-```
-http://127.0.0.1:8000/
-```
-
----
-
-## 🔐 Authentication
+🔐 Authentication
 
 This API uses Token Authentication.
+Include the header in requests that require authentication:
 
-Include the following header in authenticated requests:
-
-```
 Authorization: Token <your_token>
-```
+📌 API Endpoints (Task 0)
+Register User
 
----
+POST /api/accounts/register/
 
-## 📌 API Endpoints
+Request:
 
-### Register User
-
-**POST**
-```
-/api/accounts/register/
-```
-
-Request body:
-
-```json
 {
   "username": "john",
   "email": "john@email.com",
   "password": "strongpassword"
 }
-```
 
 Response:
 
-```json
 {
   "id": 1,
   "username": "john",
   "email": "john@email.com"
 }
-```
+Login
 
----
+POST /api/accounts/login/
 
-### Login
+Request:
 
-**POST**
-```
-/api/accounts/login/
-```
-
-Request body:
-
-```json
 {
   "username": "john",
   "password": "strongpassword"
 }
-```
 
 Response:
 
-```json
 {
   "token": "your_token_here",
   "username": "john"
 }
-```
+User Profile
 
----
-
-### User Profile
-
-**GET**
-```
-/api/accounts/profile/
-```
+GET /api/accounts/profile/
 
 Headers:
-```
+
 Authorization: Token <your_token>
-```
 
 Response:
 
-```json
 {
   "id": 1,
   "username": "john",
@@ -182,28 +166,28 @@ Response:
   "bio": "",
   "profile_picture": null
 }
-```
+🧠 Architecture Decisions
 
----
+Custom User Model for extensibility
 
-## 🧠 Architecture Decisions
+Token Authentication for stateless API design
 
-- Custom User Model created at project start to allow extensibility.
-- Token authentication chosen for simplicity and stateless API design.
-- Default permission set to `IsAuthenticated` to enforce secure-by-default behavior.
+Default Permission: IsAuthenticated for secure-by-default behavior
 
----
+Modular Apps: (accounts, posts, notifications) for clean separation of concerns
 
-## 📈 Next Steps
+SQLite for development; easy switch to PostgreSQL for production
 
-- Posts & Comments
-- Follow System
-- Feed Generation
-- Likes & Notifications
-- Production Deployment
+📈 Next Steps / Tasks
 
----
+Implement Posts & Comments
 
-## 📜 License
+Implement Follow System & Feed
 
-This project is part of the ALX Backend Web Development program.
+Implement Likes & Notifications
+
+Deploy to production (Heroku, Render, AWS)
+
+📜 License
+
+Part of the ALX Backend Web Development Program
