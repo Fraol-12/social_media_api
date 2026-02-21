@@ -15,6 +15,9 @@ class Post(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['created_at']),
+        ]
 
 
     def __str__(self):
@@ -43,12 +46,17 @@ class Comment(models.Model):
         return f"comment by {self.author.username}"     
 
 class Like(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) 
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='likes')  
     post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='likes') 
     created_at = models.DateTimeField(auto_now_add=True) 
 
-    class Meta:
-        unique_together = ('user', 'post',)
+class Meta:
+    constraints = [
+        models.UniqueConstraint(
+            fields=['user', 'post'],
+            name='unique_like'
+        )
+    ]
 
     def __str__(self):
         return f"{self.user.username} liked {self.post.title}"    
