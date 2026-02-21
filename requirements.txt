@@ -3,3 +3,5 @@ djangorestframework==3.16.1
 django-filter
 gunicorn
 whitenoise
+drf-nested-routers
+Pillow
