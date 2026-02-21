@@ -1,63 +1,84 @@
 from django.db import models
-from django.conf import settings 
+from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
+# -----------------------------
+# Post Model
+# -----------------------------
 class Post(models.Model):
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='posts'
+        related_name='posts',
+        db_index=True  # Speeds up feed queries by author
     )
     title = models.CharField(max_length=255)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-
     class Meta:
         ordering = ['-created_at']
         indexes = [
-            models.Index(fields=['created_at']),
+            models.Index(fields=['created_at']),  # Optimizes ordering in feed
         ]
 
-
     def __str__(self):
-        return self.title 
+        return self.title
 
+# -----------------------------
+# Comment Model
+# -----------------------------
 class Comment(models.Model):
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,
-        related_name='comments'
-
-    )    
+        related_name='comments',
+        db_index=True  # Speeds up queries filtering by post
+    )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='comments'
-    )    
+        related_name='comments',
+        db_index=True
+    )
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True) 
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-created_at'] 
+        ordering = ['-created_at']
 
     def __str__(self):
-        return f"comment by {self.author.username}"     
+        return f"Comment by {self.author.username}"
 
+# -----------------------------
+# Like Model
+# -----------------------------
 class Like(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='likes')  
-    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='likes') 
-    created_at = models.DateTimeField(auto_now_add=True) 
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='likes',
+        db_index=True
+    )
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='likes',
+        db_index=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
-class Meta:
-    constraints = [
-        models.UniqueConstraint(
-            fields=['user', 'post'],
-            name='unique_like'
-        )
-    ]
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'post'],
+                name='unique_like'  # Ensures a user can't like the same post twice
+            )
+        ]
 
     def __str__(self):
-        return f"{self.user.username} liked {self.post.title}"    
-     
+        return f"{self.user.username} liked {self.post.title}"
+

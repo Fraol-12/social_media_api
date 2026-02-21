@@ -6,10 +6,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView 
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend 
-from .models import Post, Comment, Like, Notification 
+from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly 
-
+from notifications.models import Notification
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all() 
@@ -59,12 +59,16 @@ class UnlikePostView(APIView):
         return Response({'status': 'You have not liked this post'}, status=status.HTTP_400_BAD_REQUEST)            
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all() 
-    serializer_class = CommentSerializer 
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly] 
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def get_queryset(self):
+        post_id = self.kwargs.get('post_pk')  # drf-nested-routers passes post_pk
+        return Comment.objects.filter(post_id=post_id)
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user) 
+        post_id = self.kwargs.get('post_pk')
+        serializer.save(author=self.request.user, post_id=post_id) 
 
 class FeedView(APIView):
     permission_classes = [permissions.IsAuthenticated] 

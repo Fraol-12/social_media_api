@@ -16,10 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from posts.views import  FeedView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('api/accounts/', include('accounts.urls')),
-    path('api/', include('posts.urls')),
+    path('api/posts/', include('posts.urls')),
+    path('api/feed/', FeedView.as_view(), name='feed'),
+
+    path('api/notifications/', include('notifications.urls')),
 ]

@@ -1,16 +1,18 @@
-from rest_framework.routers import DefaultRouter 
-from .views import PostViewSet, CommentViewSet, FeedView, LikePostView, UnlikePostView 
-from django.urls import path 
+from .views import PostViewSet, CommentViewSet, LikePostView, UnlikePostView, FeedView
+from django.urls import path
+from rest_framework_nested import routers 
 
-router = DefaultRouter()
-router.register(r'posts', PostViewSet) 
-router.register(r'comments', CommentViewSet) 
 
-urlpatterns = router.urls 
+router = routers.SimpleRouter() 
+router.register(r'', PostViewSet, basename='post')  
 
-urlpatterns = [
+posts_router = routers.NestedSimpleRouter(router, r'', lookup='post')
+posts_router.register(r'comments', CommentViewSet, basename='post-comments')
+
+
+urlpatterns = router.urls + posts_router.urls + [
     path('feed/', FeedView.as_view(), name='feed'),
-    path('posts/<int:pk>/like/', LikePostView.as_view(), name='like-post'),
-    path('posts/<int:pk>/unlike/', UnlikePostView.as_view(), name='unlike-post')
-
+    path('<int:pk>/like/', LikePostView.as_view(), name='like-post'),
+    path('<int:pk>/unlike/', UnlikePostView.as_view(), name='unlike-post'),
 ]
+
