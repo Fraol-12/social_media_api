@@ -18,6 +18,10 @@ from django.contrib import admin
 from django.urls import path, include
 from posts.views import  FeedView
 
+def home(request):
+    return JsonResponse({"message": "Social Media API is running!"})
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -26,4 +30,5 @@ urlpatterns = [
     path('api/feed/', FeedView.as_view(), name='feed'),
 
     path('api/notifications/', include('notifications.urls')),
+    path('', home),
 ]
