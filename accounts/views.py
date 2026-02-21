@@ -3,23 +3,23 @@ from django.shortcuts import render
 from rest_framework import generics, status, viewsets 
 from rest_framework.response import Response 
 from rest_framework.authtoken.models import Token 
-from rest_framework.permissions import AllowAny, IsAuthenticated 
+from rest_framework import generics, status, viewsets, permissions
 from rest_framework.decorators import action 
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer 
 from django.contrib.auth import get_user_model 
-from .models import User 
+from .models import CustomUser
 
 
-user = get_user_model() 
+CustomUser = get_user_model() 
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer 
-    permission_classes = [AllowAny] 
+    permission_classes = [permissions.AllowAny] 
 
 
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data) 
@@ -35,17 +35,17 @@ class LoginView(generics.GenericAPIView):
     
 class ProfileView(generics.RetrieveUpdateAPIView):  
     serializer_class = UserSerializer  
-    permission_classes = [IsAuthenticated]  
+    permission_classes = [permissions.IsAuthenticated]  
 
     def get_object(self):
         return self.request.user 
 
 class UserViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated] 
+    permission_classes = [permissions.IsAuthenticated] 
 
     @action(detail=True, methods=['post']) 
     def follow(self, request, pk=None):
-        user_to_follow = User.objects.get(pk=pk) 
+        user_to_follow = CustomUser.objects.get(pk=pk) 
         if user_to_follow == request.user:
             return Response({'error': 'Cannot follow yourself.'}, status=status.HTTP_400_BAD_REQUEST)
         request.user.following.add(user_to_follow)
@@ -53,6 +53,6 @@ class UserViewSet(viewsets.ViewSet):
     
     @action(detail=True, methods=['post'])
     def unfollow(self, request, pk=None):
-        user_to_unfollow = User.objects.get(pk=pk) 
+        user_to_unfollow = CustomUser.objects.get(pk=pk) 
         request.user.following.remove(user_to_unfollow)
         return Response ({'status': f'You have unfollowed {user_to_unfollow.username}'})  
